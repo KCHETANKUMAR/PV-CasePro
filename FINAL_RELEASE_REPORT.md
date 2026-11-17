@@ -1,7 +1,7 @@
 # PV CasePro — Final Release Report
 
 **Prepared:** 2026-11-17
-**Release state:** Prepared locally; publication and deployment pending owner decisions and account setup.
+**Release state:** Public GitHub release published; Streamlit Community Cloud deployment is prepared but not yet created.
 
 ## Project health
 
@@ -21,22 +21,20 @@ Dashboard and chart logic; synthetic case library; local case intake and editing
 
 ## GitHub and deployment
 
-- Local Git repository initialized on branch `main`: **Yes**; initial files are staged for release review, but no commit has been made.
-- Remote configured: **No**.
-- GitHub CLI installed/authenticated: **No** (`gh` was not found).
-- Public repository URL: **None**.
-- License: **MIT**, with `Copyright (c) 2026 K Chetan Kumar`; staged in `LICENSE`.
+- Repository: [KCHETANKUMAR/PV-CasePro](https://github.com/KCHETANKUMAR/PV-CasePro), **public**.
+- Branch: `main`; `origin` is configured and tracks the published branch.
+- Initial commit: `78a4cf8be22fbedd2b9642d07b4ada6005301b8f` (`Initial PV CasePro release`).
+- GitHub CLI authentication: verified for `KCHETANKUMAR` using the installed CLI path.
+- License: **MIT**, with `Copyright (c) 2026 K Chetan Kumar`, in `LICENSE`.
 - Streamlit Community Cloud deployment: **Not deployed**.
 - Live demo URL: **None**.
 
 ## Remaining work
 
-1. Review the final staged list and explicitly approve the initial commit and public push.
-2. Install GitHub CLI from its official source and authenticate with the intended GitHub account, or provide a verified GitHub remote.
-3. Create the initial commit after approval.
-4. Create the public `PV-CasePro` repository and push the reviewed commit.
-5. Deploy `app.py` from branch `main` to Streamlit Community Cloud in read-only demo mode and open the generated URL to verify.
-6. Capture screenshots after successful browser review and add them to `screenshots/`.
+1. Sign in to Streamlit Community Cloud with the GitHub account that owns the repository.
+2. Create an app from `KCHETANKUMAR/PV-CasePro`, branch `main`, entry point `app.py`, keeping demo mode read-only.
+3. Open the generated URL and verify the dashboard, case library, reports, navigation and disclaimer before sharing it.
+4. Capture screenshots after successful browser review and add them to `screenshots/`.
 
 ## Local run commands
 

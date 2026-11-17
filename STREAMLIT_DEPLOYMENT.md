@@ -8,8 +8,8 @@ The SQLite database is initialized locally on the deployment filesystem and popu
 
 ## Deploy steps
 
-1. Publish the repository `PV-CasePro` to GitHub after selecting a license and confirming the files intended for public release.
-2. Sign in at [Streamlit Community Cloud](https://share.streamlit.io/) and choose **Create app**.
+1. The public repository is available at [KCHETANKUMAR/PV-CasePro](https://github.com/KCHETANKUMAR/PV-CasePro).
+2. Sign in at [Streamlit Community Cloud](https://share.streamlit.io/) with the GitHub account that owns the repository, then choose **Create app**.
 3. Select the GitHub repository, branch `main`, and main file path `app.py`.
 4. Use the Python 3.11 runtime if the workspace settings offer a Python version selector. Dependencies are read from `requirements.txt`.
 5. Keep `PV_CASEPRO_DEMO_MODE` unset or set it to `"1"` in app secrets. The code defaults to safe read-only mode when the setting is missing.

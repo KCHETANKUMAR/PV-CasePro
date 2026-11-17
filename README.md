@@ -8,7 +8,7 @@
 
 ## Screenshots
 
-Add synthetic-data screenshots to `screenshots/` and embed them here before publishing. Never capture real personal or health information.
+Add synthetic-data screenshots to `screenshots/` after browser review. Never capture real personal or health information.
 
 ## Features
 

@@ -35,7 +35,8 @@ Automated coverage includes case creation/retrieval/edit and audit entries, vali
 ## Known limitations
 
 - Browser/UI navigation and chart rendering were not verified because the local browser connection was refused in this environment.
-- No Git repository or remote exists in the project folder. GitHub CLI is unavailable and no account authentication was detected.
-- No license has been selected. A license must be chosen before public publication; no `LICENSE` file or commit has been created.
+- Repository `KCHETANKUMAR/PV-CasePro` is public. Initial commit `78a4cf8` is on `main`; `origin` tracks the published repository.
+- The MIT license is included with the requested copyright notice.
 - The project has not been deployed. There is no live URL.
+- Streamlit Community Cloud opened to a sign-in page; no Cloud app has been created or browser-tested.
 - The educational app is not validated for GxP, clinical decision-making or real regulatory reporting.
