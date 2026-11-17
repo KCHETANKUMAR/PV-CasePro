@@ -1,0 +1,3 @@
+# PV CasePro — Pharmacovigilance Case Processing Portfolio Project
+
+Designed and built a local Python/Streamlit educational case-processing application using SQLite and SQLAlchemy. Implemented fictional ICSR intake with four-minimum-criteria validation, structured assessment fields, follow-up tracking, editable narrative generation, human QC checklists, workflow audit history, synthetic training cases and CSV/Excel reporting. Added a 30-question knowledge assessment and automated tests with pytest. Used fictional data only; the application is not validated for GxP, real-world reporting, clinical decisions or official MedDRA use.
