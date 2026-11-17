@@ -6,7 +6,7 @@ from database.models import Base, Case, FollowUp, AuditLog
 from modules.training import QUESTIONS, evaluate_answers
 from services.backup_service import backup_database
 from services.case_service import create_case, update_case, update_status, reset_demo_data
-from services.dashboard_service import dashboard_metrics, filter_by_received_date
+from services.dashboard_service import dashboard_metrics, filter_by_received_date, follow_up_tracking_gaps, closed_unreviewed_cases, category_counts
 from services.follow_up_service import create_follow_up, update_follow_up
 from services.report_service import dataframe_csv
 import pandas as pd
@@ -28,10 +28,36 @@ def test_follow_up_create_update_persists(session,valid_case_data):
 
 def test_dashboard_metrics_and_date_filter(session,valid_case_data):
     case=create_case(session,valid_case_data)
-    assert dashboard_metrics([case],open_followups=2)["Total cases"]==1
-    assert dashboard_metrics([case])["Initial reports"]==1
+    metrics=dashboard_metrics([case],{case.id})
+    assert metrics["Total cases"]==1
+    assert metrics["Initial reports"]==1
+    assert metrics["Cases requiring follow-up"]==1
     assert filter_by_received_date([case],date(2025,3,1),date(2025,3,5))==[case]
     assert filter_by_received_date([case],date(2025,3,4),date(2025,3,5))==[]
+    with pytest.raises(ValueError): filter_by_received_date([case],date(2025,3,6),date(2025,3,5))
+
+def test_seed_dashboard_kpis_account_for_unknown_and_status_gaps(session):
+    from sample_data.seed_data import seed
+    assert seed(session)==10
+    cases=session.query(Case).all()
+    metrics=dashboard_metrics(cases)
+    assert metrics["Total cases"]==10
+    assert metrics["Initial reports"]==8 and metrics["Follow-ups"]==2
+    assert metrics["Serious"]==1 and metrics["Non-serious"]==6 and metrics["Unknown seriousness"]==3
+    assert metrics["Awaiting review"]==9 and metrics["Completed"]==1
+    assert metrics["Awaiting review"]+metrics["Completed"]==metrics["Total cases"]
+    assert metrics["Cases requiring follow-up"]==2
+    assert len(follow_up_tracking_gaps(cases))==2
+    assert len(closed_unreviewed_cases(cases))==1
+    workflow_counts=category_counts(cases,"status")
+    assert sum(workflow_counts.values())==len(cases)
+
+def test_date_filter_excludes_missing_receipt_dates(session,valid_case_data):
+    dated=create_case(session,valid_case_data)
+    missing_data={**valid_case_data,"patient_identifier":"TRAINING-UNDATED","received_date":None}
+    undated=create_case(session,missing_data)
+    results=filter_by_received_date([dated,undated],date(2025,3,1),date(2025,3,5))
+    assert results==[dated]
 
 def test_quiz_scoring_and_attempt_shape():
     answers=[options[correct] for _,options,correct,_ in QUESTIONS]

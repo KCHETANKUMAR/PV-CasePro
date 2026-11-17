@@ -8,7 +8,7 @@ from database.db import init_db, get_session
 from database.models import Case, Event, Assessment, FollowUp, ReferenceSafetyInformation, QCReview, AuditLog, TrainingAssessment
 from services.case_service import create_case, update_case, update_status, possible_duplicates, reset_demo_data
 from services.follow_up_service import create_follow_up, update_follow_up
-from services.dashboard_service import filter_by_received_date, dashboard_metrics
+from services.dashboard_service import filter_by_received_date, dashboard_metrics, follow_up_tracking_gaps, closed_unreviewed_cases
 from services.assessment_service import compare_expectedness
 from services.validation_service import minimum_criteria, missing_criteria, date_issues
 from services.narrative_service import narrative
@@ -57,13 +57,30 @@ if page=="Dashboard":
     st.title("Safety operations overview")
     cs=all_cases(); min_d=date.today()-timedelta(days=365)
     start=st.date_input("Received from", value=min_d); end=st.date_input("Through",value=date.today())
-    cs=filter_by_received_date(cs,start,end)
-    metrics=dashboard_metrics(cs,db.query(FollowUp).filter(FollowUp.status=='Open').count())
-    for row in (list(metrics.items())[:5],list(metrics.items())[5:]):
+    if start > end:
+        st.warning("The start date must be on or before the end date.")
+        cs=[]
+    else:
+        cs=filter_by_received_date(cs,start,end)
+    active_follow_up_case_ids={row[0] for row in db.query(FollowUp.case_id).filter(FollowUp.status.in_(["Open","Sent"])).distinct().all()}
+    metrics=dashboard_metrics(cs,active_follow_up_case_ids)
+    metric_items=list(metrics.items())
+    for offset in range(0,len(metric_items),5):
+        row=metric_items[offset:offset+5]
         for slot,(label,value) in zip(st.columns(len(row)),row): slot.metric(label,value)
+    if start <= end:
+        missing_followups=follow_up_tracking_gaps(cs,active_follow_up_case_ids)
+        if missing_followups:
+            st.warning("Follow-up tracking gap: " + ", ".join(c.case_id for c in missing_followups) + " are in Awaiting information but have no open or sent follow-up record.")
+        closed_unreviewed=closed_unreviewed_cases(cs)
+        if closed_unreviewed:
+            st.warning("Review-state discrepancy: " + ", ".join(c.case_id for c in closed_unreviewed) + " are Closed but are not marked Reviewed for educational use.")
+        if db.query(QCReview).count()==0:
+            st.info("No QC reviews are recorded. A QC errors count of zero does not indicate that cases passed QC.")
+        st.caption("Seriousness counts are exclusive: Unknown includes unassessed values. Awaiting review excludes Closed cases and includes Not reviewed or Needs correction. Completed means workflow status Closed. Follow-up counts unique cases in Awaiting information or with an Open/Sent follow-up. Cases without a receipt date are excluded from the selected date range.")
     col1,col2=st.columns(2)
     if cs:
-        df=pd.DataFrame([{"Case ID":c.case_id,"Seriousness":c.seriousness,"Outcome":c.outcome or "Unknown","Status":c.status,"Month":c.received_date.strftime("%Y-%m") if c.received_date else "Unknown","Event":c.training_term or "Uncoded"} for c in cs])
+        df=pd.DataFrame([{"Case ID":c.case_id,"Seriousness":c.seriousness if c.seriousness in {"Serious","Non-serious"} else "Unknown","Outcome":c.outcome or "Unknown","Status":c.status,"Month":c.received_date.strftime("%Y-%m") if c.received_date else "Unknown","Event":c.training_term or "Uncoded"} for c in cs])
         for slot,field,title in [(col1,"Seriousness","Cases by seriousness"),(col2,"Outcome","Cases by outcome")]: slot.plotly_chart(px.histogram(df,x=field,color=field,title=title),width="stretch")
         for slot,field,title in [(col1,"Status","Cases by workflow status"),(col2,"Month","Cases by month")]: slot.plotly_chart(px.histogram(df,x=field,title=title),width="stretch")
         st.plotly_chart(px.histogram(df,x="Event",title="Cases by reported event category"),width="stretch")
